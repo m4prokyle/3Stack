@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Using Stacks to Arrange Views — iOS | Android | Flutter</title>
+<link rel="icon" href="data:," />
+<style>
+  :root { --fg:#0b1220; --muted:#5c6b7a; --bg:#ffffff; --ink:#0f172a; --line:#e5eaf1; --chip:#eef2ff; --ios:#0ea5e9; --and:#16a34a; --flu:#f59e0b; }
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Inter,sans-serif;background:var(--bg);color:var(--fg)}
+  header{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);z-index:2}
+  .wrap{max-width:1200px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+  h1{font-size:18px;margin:0}
+  main{max-width:1200px;margin:0 auto;padding:18px 16px 40px}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 18px}
+  .chip{background:var(--chip);padding:4px 8px;border-radius:999px;font-size:12px;color:#334155}
+  .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .col{border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden}
+  .col header{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line)}
+  .col header h2{font-size:14px;margin:0}
+  .col header .dot{width:10px;height:10px;border-radius:50%}
+  .dot.ios{background:var(--ios)} .dot.and{background:var(--and)} .dot.flu{background:var(--flu)}
+  .section{padding:12px 12px 2px;border-bottom:1px dashed var(--line)}
+  .section:last-child{border-bottom:none;padding-bottom:14px}
+  .section h3{font-size:13px;margin:0 0 8px;color:var(--ink)}
+  pre{overflow:auto;background:#0b1220;color:#e5e7eb;padding:10px;border-radius:8px;font-size:13px;line-height:1.45}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+  .note{font-size:13px;color:#475569;margin:6px 0 0}
+  .grid2{display:grid;grid-template-columns:1fr;gap:10px}
+  .step{margin-bottom:10px}
+  a{color:#1f6feb;text-decoration:none}
+  a:hover{text-decoration:underline}
+  @media (max-width:1020px){ .cols{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Using Stacks to Arrange Views</h1>
+      <nav><a href="../index.html">← All tutorials</a></nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="meta">
+      <span class="chip">Layout</span>
+      <span class="chip">Beginner → Intermediate</span>
+      <span class="chip">Parity: iOS / Android / Flutter</span>
+      <span class="chip">Sources: Apple docs on stacks</span>
+    </div>
+
+    <p class="note">
+      This page mirrors Apple’s SwiftUI “Using stacks to arrange views” tutorial and maps each concept to Android (Jetpack Compose) and Flutter. 
+      Key references on stacks and layout behavior: Apple’s stack views overview and concepts. :contentReference[oaicite:1]{index=1}
+    </p>
+
+    <div class="cols">
+      <!-- iOS -->
+      <section class="col">
+        <header><span class="dot ios"></span><h2>iOS (SwiftUI)</h2></header>
+
+        <div class="section">
+          <h3>1) Project & Preview</h3>
+          <div class="grid2">
+            <div class="step">
+              Create a SwiftUI app and open <code>ContentView.swift</code>. Use the preview to iterate live. (SwiftUI previews). :contentReference[oaicite:2]{index=2}
+            </div>
+            <pre><code>// ContentView.swift
+import SwiftUI
+
+struct ContentView: View {
+    var body: some View {
+        Text("Scrumdinger")
+            .font(.title)
+            .padding()
+    }
+}
+#Preview { ContentView() }</code></pre>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>2) Vertical layout with VStack</h3>
+          <pre><code>VStack(alignment: .leading, spacing: 12) {
+    Text("Daily Standup")
+        .font(.headline)
+    Text("15 minutes • Design")
+        .foregroundStyle(.secondary)
+    Button("Start Meeting") { /* action */ }
+}
+.padding()</code></pre>
+          <p class="note">Use <code>alignment</code> and <code>spacing</code>. Add <code>.padding()</code> for insets. :contentReference[oaicite:3]{index=3}</p>
+        </div>
+
+        <div class="section">
+          <h3>3) Horizontal layout with HStack</h3>
+          <pre><code>HStack(spacing: 16) {
+    Image(systemName: "clock")
+    Text("Elapsed 05:21")
+    Spacer()
+    Text("Remaining 09:39")
+}</code></pre>
+          <p class="note"><code>Spacer()</code> pushes siblings apart. :contentReference[oaicite:4]{index=4}</p>
+        </div>
+
+        <div class="section">
+          <h3>4) Overlay with ZStack</h3>
+          <pre><code>ZStack {
+    Circle().strokeBorder(.blue.opacity(0.2), lineWidth: 10)
+    Text("Timer").font(.caption)
+}</code></pre>
+          <p class="note">ZStack layers views front‑to‑back. :contentReference[oaicite:5]{index=5}</p>
+        </div>
+
+        <div class="section">
+          <h3>5) Separators & spacing</h3>
+          <pre><code>VStack {
+    Divider()
+    HStack { Text("Speaker 1"); Spacer(); Text("00:45") }
+    HStack { Text("Speaker 2"); Spacer(); Text("01:12") }
+}</code></pre>
+          <p class="note"><code>Divider()</code> draws a thin rule; combine with <code>Spacer()</code> for flexible gaps. :contentReference[oaicite:6]{index=6}</p>
+        </div>
+
+        <div class="section">
+          <h3>6) Alignment refinements</h3>
+          <pre><code>VStack(alignment: .leading) {
+    Text("Agenda").font(.headline)
+    HStack(alignment: .firstTextBaseline) {
+        Text("Design"); Text("•"); Text("Decisions")
+    }
+}</code></pre>
+          <p class="note">Choose stack alignments or use alignment guides for cross‑stack alignment when needed. :contentReference[oaicite:7]{index=7}</p>
+        </div>
+      </section>
+
+      <!-- Android -->
+      <section class="col">
+        <header><span class="dot and"></span><h2>Android (Jetpack Compose)</h2></header>
+
+        <div class="section">
+          <h3>1) Project & Preview</h3>
+          <pre><code>// MainActivity.kt
+@Composable
+fun Content() {
+    Text("Scrumdinger", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(16.dp))
+}
+
+// @Preview annotation in Android Studio to preview</code></pre>
+          <p class="note">Compose preview mirrors SwiftUI’s quick iteration.</p>
+        </div>
+
+        <div class="section">
+          <h3>2) Column (VStack)</h3>
+          <pre><code>@Composable
+fun HeaderSection() {
+    Column(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+        Text("Daily Standup", style = MaterialTheme.typography.titleMedium)
+        Text("15 minutes • Design", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Button(onClick = { /* TODO */ }) { Text("Start Meeting") }
+    }
+}</code></pre>
+        </div>
+
+        <div class="section">
+          <h3>3) Row (HStack) with Spacer</h3>
+          <pre><code>@Composable
+fun TimeRow() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(Icons.Default.AccessTime, contentDescription = null)
+        Text("Elapsed 05:21")
+        Spacer(Modifier.weight(1f))
+        Text("Remaining 09:39")
+    }
+}</code></pre>
+        </div>
+
+        <div class="section">
+          <h3>4) Box (ZStack)</h3>
+          <pre><code>@Composable
+fun TimerOverlay() {
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(120.dp)) {
+        Canvas(modifier = Modifier.matchParentSize()) {
+            drawCircle(color = Color(0x33007AFF), style = Stroke(width = 10f))
+        }
+        Text("Timer", style = MaterialTheme.typography.labelSmall)
+    }
+}</code></pre>
+        </div>
+
+        <div class="section">
+          <h3>5) Divider & spacing</h3>
+          <pre><code>@Composable
+fun Speakers() {
+    Column {
+        Divider()
+        Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
+            Text("Speaker 1"); Spacer(Modifier.weight(1f)); Text("00:45")
+        }
+        Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
+            Text("Speaker 2"); Spacer(Modifier.weight(1f)); Text("01:12")
+        }
+    }
+}</code></pre>
+        </div>
+
+        <div class="section">
+          <h3>6) Alignment details</h3>
+          <pre><code>@Composable
+fun Agenda() {
+    Column(horizontalAlignment = Alignment.Start) {
+        Text("Agenda", style = MaterialTheme.typography.titleSmall)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Design"); Text(" • "); Text("Decisions")
+        }
+    }
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Flutter -->
+      <section class="col">
+        <header><span class="dot flu"></span><h2>Flutter (Dart)</h2></header>
+
+        <div class="section">
+          <h3>1) Project & Hot Reload</h3>
+          <pre><code>// lib/main.dart
+import 'package:flutter/material.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(home: Scaffold(body: Content()));
+  }
+}
+
+class Content extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.all(16),
+      child: Text('Scrumdinger', style: TextStyle(fontSize: 22)),
+    );
+  }
+}</code></pre>
+        </div>
+
+        <div class="section">
+          <h3>2) Column (VStack)</h3>
+          <pre><code>Widget headerSection() {
+  return Padding(
+    padding: const EdgeInsets.all(16),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Text('Daily Standup', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+        const SizedBox(height: 12),
+        Text('15 minutes • Design', style: TextStyle(color: Colors.grey[700])),
+        const SizedBox(height: 12),
+        FilledButton(onPressed: () {}, child: const Text('Start Meeting')),
+      ],
+    ),
+  );
+}</code></pre>
+        </div>
+
+        <div class="section">
+          <h3>3) Row (HStack) with Spacer</h3>
+          <pre><code>Widget timeRow() {
+  return Row(
+    children: const [
+      Icon(Icons.access_time),
+      SizedBox(width: 16),
+      Text('Elapsed 05:21'),
+      Spacer(),
+      Text('Remaining 09:39'),
+    ],
+  );
+}</code></pre>
+        </div>
+
+        <div class="section">
+          <h3>4) Stack (ZStack)</h3>
+          <pre><code>Widget timerOverlay() {
+  return SizedBox(
+    width: 120, height: 120,
+    child: Stack(alignment: Alignment.center, children: [
+      // Simple ring using a Container + decoration; for custom draw use CustomPaint
+      Container(
+        decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: const Color(0x33007AFF), width: 10)),
+      ),
+      const Text('Timer', style: TextStyle(fontSize: 12)),
+    ]),
+  );
+}</code></pre>
+        </div>
+
+        <div class="section">
+          <h3>5) Divider & spacing</h3>
+          <pre><code>Widget speakers() {
+  return Column(
+    children: const [
+      Divider(),
+      Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8),
+        child: Row(children: [Text('Speaker 1'), Spacer(), Text('00:45')]),
+      ),
+      Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8),
+        child: Row(children: [Text('Speaker 2'), Spacer(), Text('01:12')]),
+      ),
+    ],
+  );
+}</code></pre>
+        </div>
+
+        <div class="section">
+          <h3>6) Alignment details</h3>
+          <pre><code>Widget agenda() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: const [
+      Text('Agenda', style: TextStyle(fontWeight: FontWeight.w600)),
+      Row(children: [Text('Design'), Text(' • '), Text('Decisions')]),
+    ],
+  );
+}</code></pre>
+        </div>
+      </section>
+    </div>
+
+    <p class="note" style="margin-top:18px">
+      Concept parity: <strong>VStack ↔ Column</strong>, <strong>HStack ↔ Row</strong>, <strong>ZStack ↔ Box/Stack</strong>, 
+      <strong>Spacer ↔ Spacer/weight(1f) ↔ Spacer()</strong>, <strong>Divider ↔ Divider()</strong>. Apple’s docs on stack views cover alignment, spacing, and composition patterns used here. :contentReference[oaicite:8]{index=8}
+    </p>
+
+    <hr style="border:none;border-top:1px solid var(--line);margin:20px 0" />
+
+    <details>
+      <summary>Attributions & References</summary>
+      <ul>
+        <li>Apple “App Dev Tutorials” listing for the stacks module (context & duration). :contentReference[oaicite:9]{index=9}</li>
+        <li>“Building layouts with stack views” — SwiftUI reference for VStack/HStack/ZStack, Spacer, Divider, alignment & spacing. :contentReference[oaicite:10]{index=10}</li>
+        <li>“Organizing and aligning content with stacks” — conceptual guide for layout with stacks. :contentReference[oaicite:11]{index=11}</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>
+
